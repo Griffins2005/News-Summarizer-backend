@@ -27,7 +27,12 @@ def summarize_text(text):
         data = response.json()
         if isinstance(data, list) and "summary_text" in data[0]:
             return data[0]["summary_text"]
+        # Handle API error messages
+        if "error" in data:
+            return f"Summary error: {data['error']}"
         return str(data)
+    except requests.exceptions.HTTPError as http_err:
+        return f"Summary API error: {str(http_err)}"
     except Exception as e:
         return f"Summary unavailable: {str(e)}"
 
