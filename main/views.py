@@ -1,12 +1,11 @@
 #backend/main/views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.generics import ListAPIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import authentication_classes
 from .utils import get_text_from_url, summarize_text, classify_fake_news_ensemble
 from .models import QueryHistory, Feedback
 from .serializers import QueryHistorySerializer
@@ -28,8 +27,9 @@ class AnalyzeView(APIView):
 
     def post(self, request):
         start_time = time.time()
-        url = request.data.get("url", "").strip()
-        text = request.data.get("text", "").strip()
+        url = (request.data.get("url") or "").strip()
+        text = (request.data.get("text") or "").strip()
+        # Defensive: support only one being present
         if url:
             try:
                 article = get_text_from_url(url)
@@ -126,7 +126,6 @@ class AllFeedbackView(APIView):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def admin_check(request):
-    # Only allow actual Django superusers
     if not request.user.is_superuser:
         return Response({"error": "Not a superuser."}, status=403)
     return Response({"success": True, "username": request.user.username})
