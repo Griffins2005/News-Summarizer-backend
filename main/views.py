@@ -154,3 +154,10 @@ def temp_reset_superuser_password(request):
         return Response({"success": True, "msg": f"Password for {username} updated."})
     except Exception as e:
         return Response({"error": str(e)}, status=400)
+
+
+@api_view(["GET"])
+def list_superusers(request):
+    """Temporary endpoint to list all superuser usernames. Remove after use!"""
+    usernames = list(User.objects.filter(is_superuser=True).values_list("username", flat=True))
+    return Response({"superusers": usernames})

@@ -1,6 +1,6 @@
 # backend/main/urls.py
 from django.urls import path 
-from .views import AnalyzeView, feedback_view, AllQueryHistoryView, AllFeedbackView, change_admin_password, health_check, admin_check, temp_reset_superuser_password
+from .views import AnalyzeView, feedback_view, AllQueryHistoryView, AllFeedbackView, change_admin_password, health_check,list_superusers, admin_check, temp_reset_superuser_password
 from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
@@ -13,4 +13,5 @@ urlpatterns = [
     path("change-password/", change_admin_password),
     path("admin-check/", admin_check),  
     path("temp-reset-superuser/", temp_reset_superuser_password),
+    path("list-superusers/", list_superusers),
 ]
