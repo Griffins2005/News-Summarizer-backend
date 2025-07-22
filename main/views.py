@@ -2,8 +2,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.generics import ListAPIView
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import authentication_classes
 from .utils import get_text_from_url, summarize_text, classify_fake_news_ensemble
 from .models import QueryHistory, Feedback
 from .serializers import QueryHistorySerializer
@@ -118,3 +121,12 @@ class AllFeedbackView(APIView):
             for f in feedbacks
         ]
         return Response(data)
+    
+@api_view(["POST"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def admin_check(request):
+    # Only allow actual Django superusers
+    if not request.user.is_superuser:
+        return Response({"error": "Not a superuser."}, status=403)
+    return Response({"success": True, "username": request.user.username})
