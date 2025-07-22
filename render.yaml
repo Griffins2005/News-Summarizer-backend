@@ -8,10 +8,17 @@ services:
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: news_summarizer.settings
-      - key: SECRET_KEY
-        value: your-secret-key-here
-      - key: ALLOWED_HOSTS
-        value: your-backend.onrender.com
-      # Add other env variables as needed
+      - key: DJANGO_SECRET_KEY
+        sync: false
+      - key: DJANGO_ALLOWED_HOSTS
+        value: news-summarizer-backend-zgiq.onrender.com,localhost,127.0.0.1
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        value: sqlite:///db.sqlite3
+      - key: CELERY_BROKER_URL
+        value: redis://localhost:6379/0
+      - key: CELERY_RESULT_BACKEND
+        value: django-db
     autoDeploy: true
     staticPublishPath: backend/staticfiles

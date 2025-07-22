@@ -1,19 +1,43 @@
-# Python
-*.pyc
-*.pyo
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.sqlite3
+*.py[cod]
+*.so
+
+# C extensions
+*.pyd
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Django stuff:
+*.log
+staticfiles/
+media/
 db.sqlite3
 
-# Virtualenv
-venv/
+# Pytest
+.pytest_cache/
+
+# Environment variables
 .env
 
-# Editor
-.DS_Store
+# VS Code/JetBrains
 .vscode/
 .idea/
 
-# Django static
-staticfiles/
-media/
+# Virtual env
+venv/
