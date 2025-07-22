@@ -10,6 +10,8 @@ from .utils import get_text_from_url, summarize_text, classify_fake_news_ensembl
 from .models import QueryHistory, Feedback
 from .serializers import QueryHistorySerializer
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 import sys
 import time
 from django.http import HttpResponse
@@ -128,3 +130,27 @@ def admin_check(request):
     if not request.user.is_superuser:
         return Response({"error": "Not a superuser."}, status=403)
     return Response({"success": True, "username": request.user.username})
+
+@api_view(["POST"])
+@csrf_exempt  # disables CSRF protection for this endpoint; fine for temporary admin use only!
+def temp_reset_superuser_password(request):
+    """
+    Temporary endpoint to reset a superuser's password without shell access.
+    POST with ?key=YOUR_SECRET_KEY
+    Body: { "username": "admin", "new_password": "NEWPASSWORD" }
+    """
+    # Change this secret to something random before pushing!
+    SECRET = "factCheck_123"
+    if request.GET.get("key") != SECRET:
+        return Response({"error": "Unauthorized"}, status=403)
+    username = request.data.get("username")
+    password = request.data.get("new_password")
+    if not username or not password:
+        return Response({"error": "Missing username or new_password"}, status=400)
+    try:
+        user = User.objects.get(username=username)
+        user.set_password(password)
+        user.save()
+        return Response({"success": True, "msg": f"Password for {username} updated."})
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
