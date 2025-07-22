@@ -1,18 +1,19 @@
-# General
+# Python
 *.pyc
 *.pyo
 __pycache__/
-.env
-.DS_Store
+*.sqlite3
+db.sqlite3
 
-# VSCode and JetBrains
+# Virtualenv
+venv/
+.env
+
+# Editor
+.DS_Store
 .vscode/
 .idea/
-.env
-venv/
-db.sqlite3
+
+# Django static
 staticfiles/
 media/
-__pycache__/
-*.pyc
-*.sqlite3
