@@ -24,7 +24,6 @@ def health_check(request):
 
 class AnalyzeView(APIView):
     permission_classes = [AllowAny]
-
     def post(self, request):
         start_time = time.time()
         url = (request.data.get("url") or "").strip()
