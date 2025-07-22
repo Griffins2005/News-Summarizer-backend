@@ -161,3 +161,24 @@ def list_superusers(request):
     """Temporary endpoint to list all superuser usernames. Remove after use!"""
     usernames = list(User.objects.filter(is_superuser=True).values_list("username", flat=True))
     return Response({"superusers": usernames})
+
+@api_view(["POST"])
+def temp_create_superuser(request):
+    """
+    Temporary endpoint to create a superuser. REMOVE after use!
+    POST body: { "username": "...", "email": "...", "password": "..." }
+    """
+    from django.contrib.auth.models import User
+    data = request.data
+    username = data.get("username")
+    password = data.get("password")
+    email = data.get("email", "")
+    if not username or not password:
+        return Response({"error": "username and password required"}, status=400)
+    if User.objects.filter(username=username).exists():
+        return Response({"error": "User already exists"}, status=400)
+    try:
+        user = User.objects.create_superuser(username=username, email=email, password=password)
+        return Response({"success": True, "username": user.username})
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
