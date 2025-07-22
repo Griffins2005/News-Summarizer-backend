@@ -1,0 +1,18 @@
+# General
+*.pyc
+*.pyo
+__pycache__/
+.env
+.DS_Store
+
+# VSCode and JetBrains
+.vscode/
+.idea/
+.env
+venv/
+db.sqlite3
+staticfiles/
+media/
+__pycache__/
+*.pyc
+*.sqlite3

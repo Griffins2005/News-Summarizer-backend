@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: news-summarizer-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: gunicorn news_summarizer.wsgi:application --chdir backend
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: news_summarizer.settings
+      - key: SECRET_KEY
+        value: your-secret-key-here
+      - key: ALLOWED_HOSTS
+        value: your-backend.onrender.com
+      # Add other env variables as needed
+    autoDeploy: true
+    staticPublishPath: backend/staticfiles
