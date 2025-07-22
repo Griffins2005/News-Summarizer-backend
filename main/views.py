@@ -8,6 +8,7 @@ from .utils import get_text_from_url, summarize_text, classify_fake_news_ensembl
 from .models import QueryHistory, Feedback
 from .serializers import QueryHistorySerializer
 from django.contrib.auth.models import User
+import sys
 import time
 from django.http import HttpResponse
 
@@ -30,6 +31,7 @@ class AnalyzeView(APIView):
             try:
                 article = get_text_from_url(url)
             except Exception as e:
+                print("AnalyzeView URL fetch error:", e, file=sys.stderr)
                 return Response(
                     {"error": f"Failed to fetch article from the provided URL. This site may block bots, or the link is invalid. Error details: {str(e)}"},
                     status=400
@@ -49,8 +51,12 @@ class AnalyzeView(APIView):
                 return Response({"error": "Please provide more article text for analysis."}, status=400)
         else:
             return Response({"error": "No input provided. Paste a news article link or text."}, status=400)
-        summary = summarize_text(text)
-        verdict, confidence, details = classify_fake_news_ensemble(text)
+        try:
+            summary = summarize_text(text)
+            verdict, confidence, details = classify_fake_news_ensemble(text)
+        except Exception as e:
+            print("AnalyzeView pipeline error:", e, file=sys.stderr)
+            return Response({"error": f"AI failed: {str(e)}"}, status=500)
         duration_ms = int((time.time() - start_time) * 1000)
         QueryHistory.objects.create(
             input_type='url' if url else 'text',
