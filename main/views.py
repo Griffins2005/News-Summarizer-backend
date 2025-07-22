@@ -9,6 +9,15 @@ from .models import QueryHistory, Feedback
 from .serializers import QueryHistorySerializer
 from django.contrib.auth.models import User
 import time
+from django.http import HttpResponse
+
+def health_check(request):
+    return HttpResponse(
+        "<h2>📰 News Summarizer Backend</h2>"
+        "<p>Status: <b>Running</b></p>"
+        "<p>If you see this, the backend is deployed and online! For API usage, POST to <code>/api/...</code>.</p>",
+        content_type="text/html"
+    )
 
 class AnalyzeView(APIView):
     permission_classes = [AllowAny]

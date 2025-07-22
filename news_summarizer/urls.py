@@ -21,6 +21,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
+    path('', include('main.urls')),  # This makes "/" go to health_check
     path('admin/', admin.site.urls),
     path('api/', include('main.urls')),
 ]
