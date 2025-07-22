@@ -45,7 +45,6 @@ redis==6.2.0
 regex==2024.11.6
 requests==2.32.4
 requests-file==2.1.0
-safetensors==0.5.3
 sgmllib3k==1.0.0
 six==1.17.0
 soupsieve==2.7
@@ -53,10 +52,7 @@ sqlparse==0.5.3
 sympy==1.14.0
 tinysegmenter==0.3
 tldextract==5.3.0
-tokenizers==0.21.2
-torch==2.2.2
 tqdm==4.67.1
-transformers==4.53.2
 typing_extensions==4.14.1
 tzdata==2025.2
 urllib3==2.5.0

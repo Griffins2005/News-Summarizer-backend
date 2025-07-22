@@ -1,10 +1,7 @@
 # backend/main/utils.py
-from transformers import pipeline
+import os
+import requests
 from newspaper import Article
-
-# Use only summarizer and NLI models with safetensors support
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-nli_clf = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")  # BART-MNLI uses safetensors
 
 def get_text_from_url(url):
     article = Article(url)
@@ -12,7 +9,6 @@ def get_text_from_url(url):
         article.download()
         article.parse()
     except Exception as e:
-        # Return None or a specific error for the view to handle
         raise RuntimeError(f"Could not fetch article. Error: {str(e)}")
     return {
         'text': article.text.strip(),
@@ -22,32 +18,44 @@ def get_text_from_url(url):
     }
 
 def summarize_text(text):
-    text = text[:1024]
+    api_url = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
+    headers = {"Authorization": f"Bearer {os.getenv('HF_API_KEY')}"}
+    payload = {"inputs": text[:1024]}
     try:
-        summary = summarizer(text, max_length=130, min_length=30, do_sample=False)
-        return summary[0]['summary_text']
-    except Exception:
-        return "Summary unavailable. Please try again."
+        response = requests.post(api_url, headers=headers, json=payload, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        if isinstance(data, list) and "summary_text" in data[0]:
+            return data[0]["summary_text"]
+        return str(data)
+    except Exception as e:
+        return f"Summary unavailable: {str(e)}"
 
 def classify_fake_news_ensemble(text):
-    # Only use Zero-Shot NLI (MNLI) for now
-    nli_result = nli_clf(
-        text[:512],
-        candidate_labels=["real news", "fake news", "opinion", "satire"],
-        multi_label=False
-    )
-    label = nli_result['labels'][0]
-    confidence = round(nli_result['scores'][0] * 100, 1)
-
-    # Simple verdict logic for demo
-    if label in ["fake news", "opinion", "satire"] and confidence > 60:
-        verdict = label.upper()
-    elif label == "real news" and confidence > 60:
-        verdict = "REAL NEWS"
-    else:
-        verdict = "UNSURE"
-
-    return verdict, confidence, {
-        "nli_label": label,
-        "nli_confidence": confidence
+    api_url = "https://api-inference.huggingface.co/models/facebook/bart-large-mnli"
+    headers = {"Authorization": f"Bearer {os.getenv('HF_API_KEY')}"}
+    payload = {
+        "inputs": text[:512],
+        "parameters": {
+            "candidate_labels": ["real news", "fake news", "opinion", "satire"],
+            "multi_label": False,
+        },
     }
+    try:
+        response = requests.post(api_url, headers=headers, json=payload, timeout=30)
+        response.raise_for_status()
+        nli_result = response.json()
+        label = nli_result["labels"][0]
+        confidence = round(nli_result["scores"][0] * 100, 1)
+        if label in ["fake news", "opinion", "satire"] and confidence > 60:
+            verdict = label.upper()
+        elif label == "real news" and confidence > 60:
+            verdict = "REAL NEWS"
+        else:
+            verdict = "UNSURE"
+        return verdict, confidence, {
+            "nli_label": label,
+            "nli_confidence": confidence,
+        }
+    except Exception as e:
+        return "UNSURE", 0, {"error": str(e)}
